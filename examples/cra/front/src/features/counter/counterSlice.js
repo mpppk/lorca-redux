@@ -1,4 +1,4 @@
-import { createSlice } from '@reduxjs/toolkit';
+import {createAction, createReducer, createSlice} from '@reduxjs/toolkit';
 
 export const counterSlice = createSlice({
   name: 'counter',
@@ -22,6 +22,12 @@ export const counterSlice = createSlice({
   },
 });
 
+const readDir = createAction('SERVER/READ_DIR')
+
+export const dirReducer = createReducer([], {
+  [readDir]: (state, action) => action.payload.files
+})
+
 export const { increment, decrement, incrementByAmount } = counterSlice.actions;
 
 // The function below is called a thunk and allows us to perform async logic. It
@@ -38,5 +44,10 @@ export const incrementAsync = amount => dispatch => {
 // the state. Selectors can also be defined inline where they're used instead of
 // in the slice file. For example: `useSelector((state) => state.counter.value)`
 export const selectCount = state => state.counter.value;
+
+export const clickReadDirButton = (dir) => ({
+  type: 'APP/CLICK_READ_DIR_BUTTON',
+  payload: dir
+})
 
 export default counterSlice.reducer;

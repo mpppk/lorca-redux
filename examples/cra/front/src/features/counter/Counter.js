@@ -7,20 +7,21 @@ import {
   increment,
   incrementByAmount,
   incrementAsync,
-  selectCount,
+  selectCount, clickReadDirButton,
 } from './counterSlice';
 import styles from './Counter.module.css';
 
 
 export function Counter() {
   const count = useSelector(selectCount);
+  const files = useSelector((s) => s.dir);
   const dispatch = useDispatch();
   const [incrementAmount, setIncrementAmount] = useState('2');
 
   const handleClickIncrementButton = () => {
     console.log('increment');
     if (dispatchToServer !== undefined) {
-      dispatchToServer();
+      dispatchToServer({A: 1});
     }
     dispatch(increment());
   }
@@ -65,7 +66,16 @@ export function Counter() {
         >
           Add Async
         </button>
+        <button
+            className={styles.button}
+            onClick={() =>
+                dispatch(clickReadDirButton('.'))
+            }
+        >
+          Read Current Dir
+        </button>
       </div>
+      {files.join(' ')}
     </div>
   );
 }
