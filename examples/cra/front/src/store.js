@@ -1,10 +1,10 @@
 /*global dispatchToServer*/
 
 import { configureStore } from '@reduxjs/toolkit';
-import counterReducer, {dirReducer} from '../features/counter/counterSlice';
+import {dirReducer} from './reducer';
 
 const reducer = {
-  counter: counterReducer,
+  // counter: counterReducer,
   dir: dirReducer
 }
 

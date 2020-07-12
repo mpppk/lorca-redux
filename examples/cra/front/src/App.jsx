@@ -1,8 +1,8 @@
 import React from 'react';
 import logo from './logo.svg';
 import './App.css';
-import styles from "./features/counter/Counter.module.css";
-import {clickReadDirButton} from "./features/counter/counterSlice";
+import styles from "./global.module.css";
+import {clickReadDirButton} from "./reducer";
 import {useDispatch, useSelector} from "react-redux";
 
 const toFilesText = (files, maxNum) => {
