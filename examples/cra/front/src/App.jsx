@@ -2,7 +2,7 @@ import React from 'react';
 import logo from './logo.svg';
 import './App.css';
 import styles from "./global.module.css";
-import {clickReadDirButton} from "./reducer";
+import {clickReadDirButton} from "./redux";
 import {useDispatch, useSelector} from "react-redux";
 
 const toFilesText = (files, maxNum) => {

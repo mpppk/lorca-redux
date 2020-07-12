@@ -70,5 +70,4 @@ func main() {
 		}
 	}()
 	fsa.Wait(ui)
-	fmt.Println("wait finish")
 }
