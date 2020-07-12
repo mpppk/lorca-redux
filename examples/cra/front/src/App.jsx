@@ -1,14 +1,38 @@
 import React from 'react';
 import logo from './logo.svg';
-import { Counter } from './features/counter/Counter';
 import './App.css';
+import styles from "./features/counter/Counter.module.css";
+import {clickReadDirButton} from "./features/counter/counterSlice";
+import {useDispatch, useSelector} from "react-redux";
+
+const toFilesText = (files, maxNum) => {
+  const fileMaxNum = files.length >=maxNum ? maxNum: files.length;
+  let fileNames = files.slice(0, fileMaxNum).map(f => `"${f}"`).join(', ');
+  fileNames += files.length > maxNum ? `, and ${files.length-maxNum} files` : ''
+  return fileNames;
+}
+
+const formatDir = (s) => {
+  return toFilesText(s.dir, 2)
+}
 
 function App() {
+  const dispatch = useDispatch();
+  const fileNames = useSelector(formatDir);
+
   return (
     <div className="App">
       <header className="App-header">
         <img src={logo} className="App-logo" alt="logo" />
-        <Counter />
+        <button
+            className={styles.button}
+            onClick={() =>
+                dispatch(clickReadDirButton('.'))
+            }
+        >
+          Read Current Dir
+        </button>
+        {fileNames}
         <p>
           Edit <code>src/App.js</code> and save to reload.
         </p>
@@ -16,38 +40,11 @@ function App() {
           <span>Learn </span>
           <a
             className="App-link"
-            href="https://reactjs.org/"
+            href="https://github.com/mpppk/lorca-fsa"
             target="_blank"
             rel="noopener noreferrer"
           >
-            React
-          </a>
-          <span>, </span>
-          <a
-            className="App-link"
-            href="https://redux.js.org/"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Redux
-          </a>
-          <span>, </span>
-          <a
-            className="App-link"
-            href="https://redux-toolkit.js.org/"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Redux Toolkit
-          </a>
-          ,<span> and </span>
-          <a
-            className="App-link"
-            href="https://react-redux.js.org/"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            React Redux
+            lorca-fsa
           </a>
         </span>
       </header>

@@ -45,7 +45,7 @@ func newHandlers() *fsa.Handlers {
 
 func main() {
 	devMode := false
-	if len(os.Args) > 0 && os.Args[0] == "dev" {
+	if len(os.Args) > 1 && os.Args[1] == "dev" {
 		devMode = true
 	}
 
