@@ -8,3 +8,4 @@ require (
 )
 
 replace github.com/mpppk/lorca-fsa => ../../lorca-fsa
+replace github.com/zserge/lorca => ../../lorca

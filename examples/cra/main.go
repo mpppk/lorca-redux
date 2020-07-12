@@ -3,13 +3,9 @@ package main
 import (
 	"fmt"
 	"io/ioutil"
-	"log"
 	"os"
-	"os/signal"
 
 	fsa "github.com/mpppk/lorca-fsa"
-
-	"github.com/zserge/lorca"
 )
 
 type ReadDirPayload struct {
@@ -17,19 +13,18 @@ type ReadDirPayload struct {
 	Files []string `json:"files"`
 }
 
-func newHandlers(ui lorca.UI) *fsa.Handlers {
-	handlers := fsa.NewLorcaHandlers(ui)
-	newReadDirAction := func(dir string, files []string) *fsa.Action {
-		return &fsa.Action{
-			Type: "SERVER/READ_DIR",
-			Payload: ReadDirPayload{
-				Dir:   dir,
-				Files: files,
-			},
-			Error: false,
-			Meta:  nil,
-		}
+func newReadDirAction(dir string, files []string) *fsa.Action {
+	return &fsa.Action{
+		Type: "SERVER/READ_DIR",
+		Payload: ReadDirPayload{
+			Dir:   dir,
+			Files: files,
+		},
 	}
+}
+
+func newHandlers() *fsa.Handlers {
+	handlers := fsa.NewHandlers()
 
 	readDirRequestHandler := func(action *fsa.Action, dispatch fsa.Dispatch) error {
 		dir := action.Payload.(string)
@@ -49,24 +44,31 @@ func newHandlers(ui lorca.UI) *fsa.Handlers {
 }
 
 func main() {
-	ui, err := lorca.New("", "", 720, 480)
+	devMode := false
+	if len(os.Args) > 0 && os.Args[0] == "dev" {
+		devMode = true
+	}
+
+	handlers := newHandlers()
+
+	config := &fsa.LorcaConfig{
+		AppName:          "lorca-cra-sample",
+		Url:              "http://localhost:3000",
+		Width:            720,
+		Height:           480,
+		EnableExtensions: devMode,
+		Handlers:         handlers,
+	}
+
+	ui, err := fsa.Start(config)
 	if err != nil {
-		log.Fatal(err)
+		panic(err)
 	}
-	defer ui.Close()
-
-	handlers := newHandlers(ui)
-	ui.Bind("dispatchToServer", handlers.Dispatch)
-
-	ui.Load("http://localhost:3000")
-
-	// Wait until the interrupt signal arrives or browser window is closed
-	sigc := make(chan os.Signal)
-	signal.Notify(sigc, os.Interrupt)
-	select {
-	case <-sigc:
-	case <-ui.Done():
-	}
-
-	log.Println("exiting...")
+	defer func() {
+		if err := ui.Close(); err != nil {
+			panic(err)
+		}
+	}()
+	fsa.Wait(ui)
+	fmt.Println("wait finish")
 }

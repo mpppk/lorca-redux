@@ -61,10 +61,13 @@ type Handlers struct {
 	dispatcher Dispatcher
 }
 
-func NewLorcaHandlers(ui lorca.UI) *Handlers {
+func (h *Handlers) SetDispatcher(dispatcher Dispatcher) {
+	h.dispatcher = dispatcher
+}
+
+func NewHandlers() *Handlers {
 	return &Handlers{
-		handlers:   map[Type]Handler{},
-		dispatcher: NewLorcaDispatcher(ui),
+		handlers: map[Type]Handler{},
 	}
 }
 
