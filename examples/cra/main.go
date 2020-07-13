@@ -23,24 +23,18 @@ func newReadDirAction(dir string, files []string) *fsa.Action {
 	}
 }
 
-func newHandlers() *fsa.Handlers {
-	handlers := fsa.NewHandlers()
-
-	readDirRequestHandler := func(action *fsa.Action, dispatch fsa.Dispatch) error {
-		dir := action.Payload.(string)
-		files, err := ioutil.ReadDir(dir)
-		if err != nil {
-			return fmt.Errorf("failed to get working directory: %w", err)
-		}
-
-		var fileNames []string
-		for _, file := range files {
-			fileNames = append(fileNames, file.Name())
-		}
-		return dispatch(newReadDirAction(dir, fileNames))
+func readDirRequestHandler(action *fsa.Action, dispatch fsa.Dispatch) error {
+	dir := action.Payload.(string)
+	files, err := ioutil.ReadDir(dir)
+	if err != nil {
+		return fmt.Errorf("failed to get working directory: %w", err)
 	}
-	handlers.Handle("APP/CLICK_READ_DIR_BUTTON", fsa.HandlerFunc(readDirRequestHandler))
-	return handlers
+
+	var fileNames []string
+	for _, file := range files {
+		fileNames = append(fileNames, file.Name())
+	}
+	return dispatch(newReadDirAction(dir, fileNames))
 }
 
 func main() {
@@ -49,7 +43,8 @@ func main() {
 		devMode = true
 	}
 
-	handlers := newHandlers()
+	handlers := fsa.NewHandlers()
+	handlers.Handle("APP/CLICK_READ_DIR_BUTTON", fsa.HandlerFunc(readDirRequestHandler))
 
 	config := &fsa.LorcaConfig{
 		AppName:          "lorca-cra-sample",
