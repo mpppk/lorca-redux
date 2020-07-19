@@ -2,6 +2,7 @@ package lorcafsa
 
 import (
 	"fmt"
+	"log"
 	"os"
 	"os/signal"
 	"path/filepath"
@@ -19,9 +20,14 @@ type LorcaConfig struct {
 	CustomArgs         []string
 	Handlers           *Handlers
 	DispatchMethodName string
+	Logger             *log.Logger
 }
 
 func Start(config *LorcaConfig) (lorca.UI, error) {
+	if config.Logger != nil {
+		config.Handlers.SetLogger(config.Logger)
+	}
+
 	configDir := config.UserDir
 	if config.UserDir == "" {
 		cd, err := getConfigDir(config.AppName)
@@ -40,6 +46,9 @@ func Start(config *LorcaConfig) (lorca.UI, error) {
 	}
 
 	dispatcher := NewLorcaDispatcher(ui)
+	if config.Logger != nil {
+		dispatcher.SetLogger(config.Logger)
+	}
 	config.Handlers.SetDispatcher(dispatcher)
 
 	dispatchMethodName := "dispatchToServer"
