@@ -1,4 +1,4 @@
-module github.com/mpppk/lorca-fsa
+module github.com/mpppk/lorca-fsa/lorca-fsa
 
 go 1.14
 
