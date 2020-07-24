@@ -7,7 +7,7 @@ import (
 	"os/signal"
 	"path/filepath"
 
-	"github.com/zserge/lorca"
+	"github.com/mpppk/lorca"
 )
 
 type LorcaConfig struct {
