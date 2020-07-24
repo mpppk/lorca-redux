@@ -6,7 +6,7 @@ import (
 	"io/ioutil"
 	"log"
 
-	"github.com/zserge/lorca"
+	"github.com/mpppk/lorca"
 )
 
 var emptyLogger = log.New(ioutil.Discard, "", 0)
