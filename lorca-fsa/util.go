@@ -55,7 +55,14 @@ func Start(config *LorcaConfig) (lorca.UI, error) {
 	if config.DispatchMethodName != "" {
 		dispatchMethodName = config.DispatchMethodName
 	}
-	if err := ui.Bind(dispatchMethodName, config.Handlers.Dispatch); err != nil {
+
+	dispatch := func(action *Action) {
+		if err := config.Handlers.Dispatch(action); err != nil && config.Logger != nil {
+			config.Logger.Printf("warn: failed to dispatch action: %v\n", err)
+		}
+	}
+
+	if err := ui.Bind(dispatchMethodName, dispatch); err != nil {
 		if err := ui.Close(); err != nil {
 			panic(err)
 		}
