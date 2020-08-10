@@ -30,4 +30,4 @@ jobs:
           echo "::add-path::$(go env GOPATH)/bin"
 
       - name: Lint
-        run: make lint
+        run: cd lorca-fsa && make lint
