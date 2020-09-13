@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"log"
+	"sync"
 
 	"github.com/mpppk/lorca"
 )
@@ -82,6 +83,7 @@ func (f HandlerFunc) Do(action *Action, dispatch Dispatch) error {
 
 // Handlers represents set of handler.
 type Handlers struct {
+	sync.Mutex
 	handlers   map[Type]Handler
 	dispatcher Dispatcher
 	logger     *log.Logger
@@ -114,9 +116,13 @@ func (h *Handlers) Handle(t Type, handler Handler) {
 
 // Dispatch handle action by registered handlers
 func (h *Handlers) Dispatch(action *Action) error {
+	h.Lock()
+	defer h.Unlock()
 	if handler, ok := h.handlers[action.Type]; ok {
 		h.logger.Println("debug: handler has found for action:", formatAction(action))
-		return handler.Do(action, h.dispatcher.Dispatch)
+		err := handler.Do(action, h.dispatcher.Dispatch)
+		h.logger.Println("debug: finish handler execution:", formatAction(action))
+		return err
 	} else {
 		h.logger.Printf("debug: action handler does not found for type: %s\n", action.Type)
 	}
@@ -126,7 +132,7 @@ func (h *Handlers) Dispatch(action *Action) error {
 func formatAction(action *Action) string {
 	msg := "Type: " + string(action.Type)
 	if action.Payload != nil {
-		msg += fmt.Sprintf(" Payload: %v", action.Payload)
+		msg += fmt.Sprintf(" Payload: %#v", action.Payload)
 	}
 
 	if action.Meta != nil {

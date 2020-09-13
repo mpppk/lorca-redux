@@ -58,7 +58,7 @@ func Start(config *LorcaConfig) (lorca.UI, error) {
 
 	dispatch := func(action *Action) {
 		if err := config.Handlers.Dispatch(action); err != nil && config.Logger != nil {
-			config.Logger.Printf("warn: failed to dispatch action: %v\n", err)
+			config.Logger.Printf("warn: failed to dispatch action: error(%v): action(%#v)\n", err, action)
 		}
 	}
 
