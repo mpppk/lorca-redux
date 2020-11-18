@@ -84,7 +84,7 @@ func (f HandlerFunc) Do(action *Action, dispatch Dispatch) error {
 // Handlers represents set of handler.
 type Handlers struct {
 	sync.Mutex
-	handlers   map[Type]Handler
+	handlers   map[Type][]Handler
 	dispatcher Dispatcher
 	logger     *log.Logger
 }
@@ -102,15 +102,14 @@ func (h *Handlers) SetLogger(logger *log.Logger) {
 // NewHandlers returns new Handlers
 func NewHandlers() *Handlers {
 	return &Handlers{
-		handlers: map[Type]Handler{},
+		handlers: map[Type][]Handler{},
 		logger:   emptyLogger,
 	}
 }
 
 // Handle registers the action handler for the given type.
 func (h *Handlers) Handle(t Type, handler Handler) {
-	// FIXME: panic if handler already exists for type
-	h.handlers[t] = handler
+	h.handlers[t] = append(h.handlers[t], handler)
 	h.logger.Println("debug: action handler is registered for ", t)
 }
 
@@ -118,11 +117,22 @@ func (h *Handlers) Handle(t Type, handler Handler) {
 func (h *Handlers) Dispatch(action *Action) error {
 	h.Lock()
 	defer h.Unlock()
-	if handler, ok := h.handlers[action.Type]; ok {
+	if handlers, ok := h.handlers[action.Type]; ok {
 		h.logger.Println("debug: handler has found for action:", formatAction(action))
-		err := handler.Do(action, h.dispatcher.Dispatch)
-		h.logger.Println("debug: finish handler execution:", formatAction(action))
-		return err
+		var errs []error
+		for _, handler := range handlers {
+			if err := handler.Do(action, h.dispatcher.Dispatch); err != nil {
+				errs = append(errs, err)
+			}
+			h.logger.Println("debug: finish handler execution:", formatAction(action))
+		}
+		if len(errs) == 0 {
+			return nil
+		} else if len(errs) == 1 {
+			return fmt.Errorf("faled to execute handler: %w", errs[0])
+		} else {
+			return fmt.Errorf("faled to execute multiple handlers: %v", errs)
+		}
 	} else {
 		h.logger.Printf("debug: action handler does not found for type: %s\n", action.Type)
 	}
