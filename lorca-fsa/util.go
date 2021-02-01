@@ -23,6 +23,7 @@ type LorcaConfig struct {
 	Logger             *log.Logger
 }
 
+// Start launch UI and bind fsa dispatcher to it.
 func Start(config *LorcaConfig) (lorca.UI, error) {
 	if config.Logger != nil {
 		config.Handlers.SetLogger(config.Logger)
@@ -78,8 +79,8 @@ func Start(config *LorcaConfig) (lorca.UI, error) {
 	return ui, nil
 }
 
+// Wait waits until the interrupt signal arrives or browser window is closed
 func Wait(ui lorca.UI) {
-	// Wait until the interrupt signal arrives or browser window is closed
 	sigc := make(chan os.Signal)
 	signal.Notify(sigc, os.Interrupt)
 	select {

@@ -3,7 +3,10 @@ package main
 import (
 	"fmt"
 	"io/ioutil"
+	"net/http"
 	"os"
+
+	"github.com/rakyll/statik/fs"
 
 	fsa "github.com/mpppk/lorca-fsa"
 )
@@ -35,6 +38,19 @@ func readDirRequestHandler(action *fsa.Action, dispatch fsa.Dispatch) error {
 		fileNames = append(fileNames, file.Name())
 	}
 	return dispatch(newReadDirAction(dir, fileNames))
+}
+
+func newServer(port int) (*http.Server, error) {
+	statikFS, err := fs.New()
+	if err != nil {
+		return nil, fmt.Errorf("failed to initialize html fs: %w", err)
+	}
+	mux := http.NewServeMux()
+	mux.Handle("/", http.FileServer(statikFS))
+	return &http.Server{
+		Addr:    fmt.Sprintf(":%d", port),
+		Handler: mux,
+	}, nil
 }
 
 func main() {

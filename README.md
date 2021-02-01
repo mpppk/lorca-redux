@@ -1,53 +1,61 @@
 # lorca-fsa
 
-lorca-fsa is a minimal library developed for [lorca](https://github.com/zserge/lorca) for message passing between client side and server side using Flux Standard Action (FSA).
+lorca-fsa is a minimal library developed for [lorca](https://github.com/zserge/lorca) for message passing between client-side and server-side using _Flux Standard Action (FSA)_.
 It can be used in all applications that use FSA, regardless of which View library you use, such as React, Angular, Vue, etc.
 
-lorca provides a way to call JavaScript from Go and vice versa via Chrome DevTools protocol.
-Thanks to this, an application using lorca does not need to implement endpoints using REST API or GraphQL for communication between the front end and the server-side.
-However, it is not realistic to bind many methods because the JavaScript methods called from Go must be exposed to global.
-lorca-fsa provides an FSA-based message passing mechanism through a single global JavaScript method.
+## Motivation
+
+lorca provides a way to call JavaScript from Go and vice versa via Chrome DevTools protocol as `ui.Eval` and `ui.Bind`.
+Thanks to this, an application using lorca does not need to implement API like REST or GraphQL for communication between the client-side and the server-side.
+
+However, using `ui.Eval` and` ui.Bind` in large-scale applications presents some challenges.
+
+1. ui.Bind binds Go methods to JavaScript global variables. So when dozens or more Go methods are bound, global pollution becomes a problem.
+
+2. Affinity with the state management system at the client. Bound methods are often responsible for processing with side effects such as file system access and HTTP requests. If the client already has a mechanism for state management, the bound methods should also be managed by that mechanism.
+
+To solve these problems, lorca-fsa provides an FSA-based message passing mechanism through a single global JavaScript method.
 The action dispatched on the frontend will be sent to the server-side, and Go application can handle it.
 The server-side processing result is also notified to the frontend by dispatching an action.
 
-## Current Status: Under Development
+## Current Status: Alpha
+lorca-fsa is working fine on [my project](https://github.com/mpppk/imagine), but it needs more feedbacks. The APIs are not stable.
 
 ## Installation
 
 ```shell
-$ go get lorca-fsa
+$ go get github.com/mpppk/lorca-fsa/lorca-fsa
 ```
 
 ## Usage
 ```go
 package main
+
 import (
 	"fmt"
-	"io/ioutil"
-	"os"
 
-	fsa "github.com/mpppk/lorca-fsa"
+	fsa "github.com/mpppk/lorca-fsa/lorca-fsa"
 )
 
 func panicIfErrExist(err error) {
-    if err != nil {
-        panic(err)
-    }
+	if err != nil {
+		panic(err)
+	}
 }
 
 func newServerResponseAction() *fsa.Action {
 	return &fsa.Action{ Type: "SERVER/PONG" }
 }
 
-// someActionHandler is action handler which will be registered by handlers.Handle
-// fsa.Action represents fsa, so the struct have Type, Payload, Error, and Meta.
-// fsa.Dispatch is dispatcher to dispatch action to frontend application.
+// someActionHandler is action handler which will be registered by handlers.Handle.
+// fsa.Action represents FSA, so the struct have Type, Payload, Error, and Meta.
+// fsa.Dispatch is dispatcher for dispatching action to frontend.
 func someActionHandler(action *fsa.Action, dispatch fsa.Dispatch) error {
-    // payload is interface{}
-    payload := action.Payload.(string)
-    fmt.Println(payload)
+	// payload is interface{}, so you need to cast to correct type.
+	payload := action.Payload.(string)
+	fmt.Println(payload)
 
-    // action is dispatched to frontend application
+	// dispatch method dispatch given action to client. 
 	return dispatch(newServerResponseAction())
 }
 
@@ -58,37 +66,33 @@ func main() {
 	handlers.Handle("APP/CLICK_SOME_BUTTON", fsa.HandlerFunc(someActionHandler))
 
 	config := &fsa.LorcaConfig{
-		Width:            720,
-		Height:           480,
-		Handlers:         handlers,
+		Width:    720,
+		Height:   480,
+		Handlers: handlers,
 	}
 
-    // fsa.Start start lorca application and bind Go and JavaScript methods for dispatch
+	// fsa.Start start lorca application and establish connection to exchange fsa
 	ui, err := fsa.Start(config)
-    panicIfErrExist(err)
+	panicIfErrExist(err)
 	defer func() {
-        panicIfErrExist(ui.Close())
+		panicIfErrExist(ui.Close())
 	}()
 
-    // fsa.Wait block goroutine until close UI or dispatch SIGINT signal
+	// Wait waits until the interrupt signal arrives or browser window is closed
 	fsa.Wait(ui)
 }
 ```
 
 See examples for more information.
-* create-react-app + redux-toolkit sample
-* Nextjs + redux sample
-* Vue + redux sample
-* Vue + Vuex sample
-* Angular + ? sample
+* [create-react-app + redux-toolkit sample](https://github.com/mpppk/lorca-fsa/cra)
 
 ### Note
-`fsa.Start` and `fsa.Wait` is just simple wrapper for lorca.New.
-If you want to handle plain lorca.UI instance, see its implementation.
+`fsa.Start` and `fsa.Wait` are just simple wrapper for original lorca API.
+If you want to handle plain lorca.UI instance, see [its implementation](https://github.com/mpppk/lorca-fsa/blob/master/lorca-fsa/util.go).
 
 ## redux-lorca
 
-redux-lorca is the redux middleware to send dispatched action to server-side.
+redux-lorca is the redux middleware to send action to server-side.
 
 ```shell script
 $ yarn add redux-lorca
