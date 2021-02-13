@@ -1,6 +1,6 @@
 import { configureStore } from '@reduxjs/toolkit';
 import {createAction, createReducer} from "@reduxjs/toolkit";
-import {makeLorcaMiddleware, setupServerActionHandler} from "./lib";
+import {makeLorcaMiddleware, setupServerActionHandler} from "./redux-lorca";
 
 const readDir = createAction('SERVER/READ_DIR')
 

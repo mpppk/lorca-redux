@@ -90,17 +90,34 @@ See examples for more information.
 `fsa.Start` and `fsa.Wait` are just simple wrapper for original lorca API.
 If you want to handle plain lorca.UI instance, see [its implementation](https://github.com/mpppk/lorca-fsa/blob/master/lorca-fsa/util.go).
 
-## redux-lorca
+## Usage with Redux
 
-redux-lorca is the redux middleware to send action to server-side.
+You can integrate lorca-fsa and redux by write very small redux middleware.
+By default, `window.dispatchToServer` is automatically injected, to dispatch fsa from the browser to serverside.
+Similarly, `window.handleServerAction` is called if action is dispatched on serverside.
 
-```shell script
-$ yarn add redux-lorca
-```
+*Note: You can change these method names by `fsa.LorcaConfig`*
 
 This is usage with redux-toolkit.
 
 ```js
+// examples/cra/front/src/redux-lorca.js
+
+export const makeLorcaMiddleware = () => (_store) => (next) => (action) => {
+    dispatchToServer(action)
+    next(action)
+}
+
+const makeServerActionHandler = (store) => (action) => store.dispatch(action);
+
+export const setupServerActionHandler = (store) => {
+    window.handleServerAction = makeServerActionHandler(store);
+}
+```
+
+```js
+// examples/cra/front/src/redux.js
+
 import { configureStore } from '@reduxjs/toolkit';
 import {makeLorcaMiddleware, setupServerActionHandler} from 'redux-lorca';
 
@@ -110,3 +127,5 @@ const makeStore = ({reducer}) => {
   return store;
 }
 ```
+
+See [examples/cra](https://github.com/mpppk/lorca-fsa/tree/master/examples/cra) for more details.
