@@ -11,4 +11,5 @@ test:
 .PHONY: build
 build:
 	yarn --cwd front build
+	statik -f -src front/build
 	go build -o cra-example

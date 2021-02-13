@@ -1,6 +1,7 @@
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
 cra-example
+statik
 
 # dependencies
 /node_modules
