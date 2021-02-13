@@ -4,5 +4,5 @@ This project is demonstration which use lorca-fsa with [Create React App](https:
 ## Build and run
 
 ```
-$ make build && ./cra-example
+$ make setup && make build && ./cra-example
 ```

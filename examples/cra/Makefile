@@ -1,5 +1,9 @@
 SHELL = /bin/bash
 
+.PHONY: setup
+lint:
+	go get github.com/rakyll/statik
+
 .PHONY: lint
 lint:
 	go vet ./...
