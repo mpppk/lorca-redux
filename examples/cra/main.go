@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"os"
 
+	_ "github.com/mpppk/lorca-fsa/examples/cra/statik"
 	"github.com/rakyll/statik/fs"
 
 	fsa "github.com/mpppk/lorca-fsa"
@@ -59,6 +60,13 @@ func main() {
 		devMode = true
 	}
 
+	server, err := newServer(3000)
+	panicIfErr(err)
+
+	go func() {
+		panicIfErr(server.ListenAndServe())
+	}()
+
 	handlers := fsa.NewHandlers()
 	handlers.Handle("APP/CLICK_READ_DIR_BUTTON", fsa.HandlerFunc(readDirRequestHandler))
 
@@ -72,13 +80,16 @@ func main() {
 	}
 
 	ui, err := fsa.Start(config)
+	panicIfErr(err)
+
+	defer func() {
+		panicIfErr(ui.Close())
+	}()
+	fsa.Wait(ui)
+}
+
+func panicIfErr(err error) {
 	if err != nil {
 		panic(err)
 	}
-	defer func() {
-		if err := ui.Close(); err != nil {
-			panic(err)
-		}
-	}()
-	fsa.Wait(ui)
 }
