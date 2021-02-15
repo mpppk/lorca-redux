@@ -27,7 +27,7 @@ lorca-fsa is working fine on [my project](https://github.com/mpppk/imagine), but
 ## Installation
 
 ```shell
-$ go get github.com/mpppk/lorca-fsa/lorca-fsa
+$ go get github.com/mpppk/lorca-fsa
 ```
 
 ## Usage
@@ -38,7 +38,7 @@ package main
 import (
 	"fmt"
 
-	fsa "github.com/mpppk/lorca-fsa/lorca-fsa"
+	fsa "github.com/mpppk/lorca-fsa
 )
 
 func panicIfErrExist(err error) {
