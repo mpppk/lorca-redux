@@ -32,4 +32,4 @@ jobs:
           ACTIONS_ALLOW_UNSECURE_COMMANDS: 'true'
 
       - name: Lint
-        run: cd lorca-fsa && make lint
+        run: make lint

@@ -3,6 +3,8 @@
 lorca-fsa is a minimal library developed for [lorca](https://github.com/zserge/lorca) for message passing between client-side and server-side using _Flux Standard Action (FSA)_.
 It can be used in all applications that use FSA, regardless of which View library you use, such as React, Angular, Vue, etc.
 
+![](images/architecture.png)
+
 ## Motivation
 
 lorca provides a way to call JavaScript from Go and vice versa via Chrome DevTools protocol as `ui.Eval` and `ui.Bind`.
@@ -19,6 +21,7 @@ The action dispatched on the frontend will be sent to the server-side, and Go ap
 The server-side processing result is also notified to the frontend by dispatching an action.
 
 ## Current Status: Alpha
+
 lorca-fsa is working fine on [my project](https://github.com/mpppk/imagine), but it needs more feedbacks. The APIs are not stable.
 
 ## Installation
@@ -28,6 +31,7 @@ $ go get github.com/mpppk/lorca-fsa/lorca-fsa
 ```
 
 ## Usage
+
 ```go
 package main
 
@@ -55,7 +59,7 @@ func someActionHandler(action *fsa.Action, dispatch fsa.Dispatch) error {
 	payload := action.Payload.(string)
 	fmt.Println(payload)
 
-	// dispatch method dispatch given action to client. 
+	// dispatch method dispatch given action to client.
 	return dispatch(newServerResponseAction())
 }
 
@@ -84,9 +88,11 @@ func main() {
 ```
 
 See examples for more information.
-* [create-react-app + redux-toolkit sample](https://github.com/mpppk/lorca-fsa/cra)
+
+- [create-react-app + redux-toolkit sample](https://github.com/mpppk/lorca-fsa/cra)
 
 ### Note
+
 `fsa.Start` and `fsa.Wait` are just simple wrapper for original lorca API.
 If you want to handle plain lorca.UI instance, see [its implementation](https://github.com/mpppk/lorca-fsa/blob/master/lorca-fsa/util.go).
 
@@ -96,7 +102,7 @@ You can integrate lorca-fsa and redux by write very small redux middleware.
 By default, `window.dispatchToServer` is automatically injected, to dispatch fsa from the browser to serverside.
 Similarly, `window.handleServerAction` is called if action is dispatched on serverside.
 
-*Note: You can change these method names by `fsa.LorcaConfig`*
+_Note: You can change these method names by `fsa.LorcaConfig`_
 
 This is usage with redux-toolkit.
 
@@ -104,28 +110,31 @@ This is usage with redux-toolkit.
 // examples/cra/front/src/redux-lorca.js
 
 export const makeLorcaMiddleware = () => (_store) => (next) => (action) => {
-    dispatchToServer(action)
-    next(action)
-}
+  dispatchToServer(action);
+  next(action);
+};
 
 const makeServerActionHandler = (store) => (action) => store.dispatch(action);
 
 export const setupServerActionHandler = (store) => {
-    window.handleServerAction = makeServerActionHandler(store);
-}
+  window.handleServerAction = makeServerActionHandler(store);
+};
 ```
 
 ```js
 // examples/cra/front/src/redux.js
 
-import { configureStore } from '@reduxjs/toolkit';
-import {makeLorcaMiddleware, setupServerActionHandler} from 'redux-lorca';
+import { configureStore } from "@reduxjs/toolkit";
+import { makeLorcaMiddleware, setupServerActionHandler } from "./redux-lorca";
 
-const makeStore = ({reducer}) => {
-  const store =  configureStore({reducer, middleware: [makeLorcaMiddleware()]});
+const makeStore = ({ reducer }) => {
+  const store = configureStore({
+    reducer,
+    middleware: [makeLorcaMiddleware()],
+  });
   setupServerActionHandler(store);
   return store;
-}
+};
 ```
 
 See [examples/cra](https://github.com/mpppk/lorca-fsa/tree/master/examples/cra) for more details.
